@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ADDAC511 Config</title>
+<style>
+    :root {
+        --bg: #f4f3ef;
+        --panel: #ffffff;
+        --ink: #1d1d1b;
+        --muted: #6b6a64;
+        --line: #e2e0d8;
+        --accent: #1f6f8b;
+        --accent-ink: #ffffff;
+        --changed: #e8590c;
+        --changed-bg: #fff4e6;
+        --note-bg: #fff9db;
+        --note-line: #f2d675;
+        --err: #c92a2a;
+        --err-bg: #fff0f0;
+        --err-line: #f1a5a5;
+        --ok: #2b8a3e;
+        --focus: #1c7ed6;
+        --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+        --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        color-scheme: light;
+    }
+    @media (prefers-color-scheme: dark) {
+        :root {
+            --bg: #151514;
+            --panel: #1f1f1d;
+            --ink: #ecebe6;
+            --muted: #9a9890;
+            --line: #33332f;
+            --accent: #4dabf7;
+            --accent-ink: #151514;
+            --changed: #ff922b;
+            --changed-bg: #2b2016;
+            --note-bg: #2a2614;
+            --note-line: #6b5d1f;
+            --err: #ff8787;
+            --err-bg: #2c1a1a;
+            --err-line: #7a3434;
+            --ok: #51cf66;
+            --focus: #4dabf7;
+            color-scheme: dark;
+        }
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.45 var(--sans); }
+    button, select, input { font: inherit; color: inherit; }
+    :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+    code, .mono { font-family: var(--mono); font-size: .92em; }
+
+    header { border-bottom: 1px solid var(--line); background: var(--panel); position: sticky; top: 0; z-index: 3; }
+    .bar { max-width: 1180px; margin: 0 auto; padding: 10px 16px; display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; }
+    .brand { display: flex; align-items: baseline; gap: 10px; margin-right: auto; }
+    .brand b { font: 700 17px var(--mono); letter-spacing: .04em; }
+    .brand span { color: var(--muted); font-size: 13px; }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+
+    button {
+        background: var(--panel); border: 1px solid var(--line); border-radius: 7px;
+        padding: 6px 11px; cursor: pointer;
+    }
+    button:hover:not(:disabled) { border-color: var(--accent); }
+    button:disabled { opacity: .45; cursor: default; }
+    button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+    button.danger { color: var(--err); }
+    select, input[type=text], input[type=number] {
+        background: var(--panel); border: 1px solid var(--line); border-radius: 7px; padding: 5px 8px;
+    }
+    input[type=number] { width: 7.5em; font-family: var(--mono); }
+    input[type=range] { accent-color: var(--accent); }
+    input:disabled, select:disabled { opacity: .4; cursor: not-allowed; }
+
+    .status { font-size: 13px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
+    .dot.on { background: var(--ok); }
+
+    nav.tabs { max-width: 1180px; margin: 0 auto; padding: 0 16px; display: flex; gap: 2px; overflow-x: auto; }
+    nav.tabs button {
+        border: 0; border-bottom: 2px solid transparent; border-radius: 0; background: none;
+        padding: 9px 11px; color: var(--muted); white-space: nowrap;
+    }
+    nav.tabs button[aria-selected=true] { color: var(--ink); border-bottom-color: var(--accent); font-weight: 600; }
+    nav.tabs button .pip { color: var(--changed); }
+
+    .picker { max-width: 1180px; margin: 0 auto; padding: 10px 16px 0; display: flex; flex-wrap: wrap; gap: 8px 18px; align-items: center; }
+    .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 7px; overflow: hidden; }
+    .seg button { border: 0; border-radius: 0; padding: 5px 12px; background: var(--panel); }
+    .seg button[aria-pressed=true] { background: var(--accent); color: var(--accent-ink); }
+    .picker label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+
+    main { max-width: 1180px; margin: 0 auto; padding: 14px 16px 96px; }
+    .lead { color: var(--muted); font-size: 14px; margin: 4px 0 14px; }
+    .grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 470px), 1fr)); }
+    section.card { background: var(--panel); border: 1px solid var(--line); border-radius: 11px; padding: 12px 14px; }
+    section.card > h2 { font: 600 13px var(--mono); letter-spacing: .06em; text-transform: uppercase; margin: 0 0 10px; color: var(--muted); }
+    section.card.wide { grid-column: 1 / -1; }
+
+    .row { display: grid; grid-template-columns: 11.5em 1fr; gap: 8px 12px; align-items: center;
+           padding: 5px 0 5px 8px; border-left: 3px solid transparent; }
+    .row > .lbl { font-size: 13px; font-family: var(--mono); color: var(--ink); }
+    .row > .ctl { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .row .readout { font-family: var(--mono); font-size: 12px; color: var(--muted); min-width: 5.5em; }
+    .row .hint { grid-column: 2; font-size: 12px; color: var(--muted); margin-top: -2px; }
+    .row.changed { border-left-color: var(--changed); background: var(--changed-bg); }
+    .row.changed .was { color: var(--changed); }
+    .row.full { grid-template-columns: 1fr; }
+    .row .copy { border: 0; background: none; color: var(--muted); padding: 2px 5px; font-size: 12px; }
+    .row .copy:hover { color: var(--accent); }
+
+    .msg { border-radius: 9px; padding: 9px 12px; margin: 0 0 12px; font-size: 14px; display: flex; gap: 10px; align-items: flex-start; }
+    .msg.note { background: var(--note-bg); border: 1px solid var(--note-line); }
+    .msg.err { background: var(--err-bg); border: 1px solid var(--err-line); color: var(--err); }
+    .msg button { margin-left: auto; }
+
+    .savebar { position: fixed; left: 0; right: 0; bottom: 0; background: var(--panel); border-top: 1px solid var(--line); z-index: 3; }
+    .savebar .bar { padding: 9px 16px; }
+    .savebar .count { font-size: 13px; color: var(--muted); margin-right: auto; }
+
+    table.steps { width: 100%; border-collapse: collapse; font-size: 13px; }
+    table.steps th, table.steps td { border-bottom: 1px solid var(--line); padding: 3px 6px; text-align: left; }
+    table.steps th { font: 600 11px var(--mono); text-transform: uppercase; color: var(--muted); letter-spacing: .05em; }
+    table.steps td.n { font-family: var(--mono); color: var(--muted); width: 2.5em; }
+    table.steps input[type=number] { width: 6em; padding: 2px 5px; }
+    table.steps tr.beyond { opacity: .38; }
+
+    ul.slots { list-style: none; margin: 0; padding: 0; }
+    ul.slots li { display: flex; gap: 10px; align-items: center; padding: 5px 0; border-bottom: 1px solid var(--line); }
+    ul.slots li .n { font-family: var(--mono); color: var(--muted); width: 2.2em; }
+    ul.slots li .nm { flex: 1; }
+    ul.slots li.sel { background: var(--changed-bg); }
+    .tag { font: 600 10px var(--mono); letter-spacing: .05em; text-transform: uppercase;
+           border: 1px solid var(--line); border-radius: 20px; padding: 1px 7px; color: var(--muted); }
+    .tag.legacy { border-color: var(--note-line); }
+    .tag.bad { border-color: var(--err-line); color: var(--err); }
+    .tag.empty { opacity: .5; }
+
+    .empty-state { text-align: center; padding: 48px 16px; color: var(--muted); }
+    .empty-state h1 { font: 600 19px var(--sans); color: var(--ink); }
+    .empty-state p { max-width: 46ch; margin: 8px auto; font-size: 14px; }
+    progress { width: 160px; }
+
+    /* (i) descriptions, as on the ADDAC112 panel */
+    .row > .lbl { display: flex; align-items: center; gap: 7px; min-width: 0; }
+    .info { flex: none; position: relative; width: 18px; height: 18px; padding: 0; border-radius: 50%;
+            border: 1px solid var(--muted); background: none; color: var(--muted);
+            font: italic 700 11px/16px Georgia, "Times New Roman", serif; cursor: pointer; text-transform: none; letter-spacing: 0; }
+    .info::after { content: ""; position: absolute; inset: -8px; } /* bigger touch target */
+    .info:hover { border-color: var(--ink); color: var(--ink); }
+    .info[aria-expanded=true] { background: var(--ink); border-color: var(--ink); color: var(--panel); }
+    section.card > h2 { display: flex; align-items: center; gap: 8px; }
+    th .info { margin-left: 5px; vertical-align: middle; }
+    .desc { grid-column: 1 / -1; background: var(--bg); border-radius: 6px; padding: 8px 10px;
+            font-size: 13px; line-height: 1.45; color: var(--ink); margin: 2px 0 4px; }
+    .colnotes:empty { display: none; }
+    table.steps tr.bad td { background: var(--err-bg); }
+    table.steps tr.note-row td { border-top: 0; padding-top: 0; }
+    table.steps tr.note-row .hint { font-size: 12px; color: var(--muted); }
+    table.steps select { max-width: 22em; }
+    .colnotes .desc { margin-bottom: 8px; }
+
+    .build { border-top: 1px solid var(--line); padding: 8px 0; }
+    .build-head { display: flex; flex-wrap: wrap; gap: 8px 10px; align-items: center; }
+    .build-head .readout { margin-right: auto; }
+    .build details { margin-top: 4px; }
+    .build summary { font-size: 13px; color: var(--muted); cursor: pointer; }
+    pre.notes { white-space: pre-wrap; font: 12px/1.5 var(--mono); color: var(--muted);
+                background: var(--bg); border-radius: 7px; padding: 8px 10px; margin: 6px 0 0; }
+    ol.howto { margin: 0; padding-left: 20px; font-size: 14px; }
+    ol.howto li { margin: 4px 0; }
+    a { color: var(--accent); }
+    .actions button[aria-pressed=true] { border-color: var(--accent); }
+
+    @media (max-width: 620px) {
+        .row { grid-template-columns: 1fr; }
+        .row .hint { grid-column: 1; }
+    }
+</style>
+</head>
+<body>
+<header>
+    <div class="bar">
+        <div class="brand"><b>ADDAC511</b> <span>Config</span></div>
+        <div class="status" id="status"><span class="dot" id="dot"></span><span id="statusText">Not connected</span></div>
+        <div class="actions" id="actions"></div>
+    </div>
+    <nav class="tabs" id="tabs" role="tablist"></nav>
+    <div class="picker" id="picker"></div>
+</header>
+<main id="main"></main>
+<div class="savebar" id="savebar" hidden>
+    <div class="bar">
+        <span class="count" id="dirtyCount"></span>
+        <div class="actions" id="saveActions"></div>
+    </div>
+</div>
+
+<script src="offsets.js?v=6b932a02"></script>
+<script src="bin.js?v=6b932a02"></script>
+<script src="units.js?v=6b932a02"></script>
+<script src="schema.js?v=6b932a02"></script>
+<script src="help.js?v=6b932a02"></script>
+<script src="image.js?v=6b932a02"></script>
+<script src="cva.js?v=6b932a02"></script>
+<script src="serial.js?v=6b932a02"></script>
+<script src="dfu.js?v=6b932a02"></script>
+<script src="dfuse.js?v=6b932a02"></script>
+<script src="firmware.js?v=6b932a02"></script>
+<script src="app.js?v=6b932a02"></script>
+</body>
+</html>
